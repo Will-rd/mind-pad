@@ -48,8 +48,25 @@ const resolvers = {
 
             return { token, user };
         },
-        
-    }
+        addDay: async (parent, { dayText, spectrum }, context) => {
+            if (context.user) {
+                const day = await Day.create({
+                    dayText,
+                    spectrum,
+                    dayAuthor: context.user.username,
+                });
+
+                await User.findOneAndUpdate(
+                    { _id: context.user._id },
+                    { $push: { days: day._id } }
+                );
+
+                return day;
+            }
+            throw new AuthenticationError('You need to be logged in!');
+        },
+
+    },
 
 
 };
